@@ -111,16 +111,18 @@ class NotifierBot(Client):
 
                         await send_message(message.channel, messages)
 
-            else:
-                # help message
-                pass
+            elif message.content == "~help":
+                await message.channel.send(f"Usage: ~list | ~untrack | ~track\n\n"
+                                           f"~list\tlists all tracked mods.\n"
+                                           f"~track ID1[,ID2,ID3...]\ttrack 1 or more mods by their id's.\n"
+                                           f"~untrack ID1[,ID2,ID3...]\tuntrack 1 or mod mods by their id's")
 
 
 client = NotifierBot()
 
 
-async def mod_update_tracker():
-    await asyncio.sleep(30)
+async def mod_update_tracker(wait):
+    await asyncio.sleep(60)
     global channels
     while True:
         try:
@@ -141,10 +143,10 @@ async def mod_update_tracker():
                                 db_mod.last_updated = mod.time_updated
                                 db_mod.save()
 
-        await asyncio.sleep(5*60)
+        await asyncio.sleep(wait)
 
 
-def run(discord_token):
+def run(discord_token, wait):
     loop = asyncio.get_event_loop()
 
     try:
@@ -153,7 +155,7 @@ def run(discord_token):
     except NotImplementedError:
         pass
 
-    loop.create_task(mod_update_tracker())
+    loop.create_task(mod_update_tracker(wait))
     loop.create_task(client.start(discord_token))
     loop.run_forever()
 
